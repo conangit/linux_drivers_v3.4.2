@@ -1,0 +1,11 @@
+KDIR := /lib/modules/`uname -r`/build
+
+all:
+	make -C $(KDIR) M=$(PWD) modules ARCH=x86
+
+.PHONY:
+clean:
+	make -C $(KDIR) M=$(PWD) modules clean ARCH=x86
+	rm -rf modules.order *.symvers
+
+obj-m += scull.o container_of.o
