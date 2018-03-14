@@ -143,12 +143,13 @@ static long leds_unlocked_ioctl(struct file *filp, unsigned int cmd, unsigned lo
         return -EINVAL;
 
 #if 0
+    /* copy_from_user() copy_to_user()可安全地与用户空间交换数据 */
     /* 检测访问模式 */
     if (_IOC_DIR(cmd) & _IOC_READ)
-        ret= !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
+        ret = access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
     else if (_IOC_DIR(cmd) & _IOC_WRITE)
-        ret= !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
-    if (ret)
+        ret = access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
+    if (! ret)
         return -EFAULT;
 #endif
 
