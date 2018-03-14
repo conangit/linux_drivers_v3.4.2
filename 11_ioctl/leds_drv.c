@@ -55,7 +55,7 @@ static int leds_open(struct inode *inode, struct file *filp)
     filp->private_data = dev;
 
 #if 0
-    // 基于同一物理地址GPFCONF的映射 导致多次调用open()/request_mem_region()失败
+    // 基于同一物理地址GPFCONF的映射 导致多次调用open()中的request_mem_region()失败
     dev->ledregs = (struct led_regs *)ioremap(GPFCONF, sizeof(struct led_regs));
 
     if (! request_mem_region((phys_addr_t)dev->ledregs, sizeof(struct led_regs), dev->name))
@@ -158,7 +158,7 @@ static long leds_unlocked_ioctl(struct file *filp, unsigned int cmd, unsigned lo
             ret = copy_from_user(&msg, (struct leds_config __user *)arg, sizeof(struct leds_config));
             if (ret)
                 return -EINVAL;
-            printk(KERN_INFO "drv:[LEDS_SET] data = %d, name = %s\n", msg.data, msg.name);
+            printk(KERN_INFO "drv:[LEDS_SET] name = %s, data = %d\n", msg.name, msg.data);
 
             if (msg.data)
             {
@@ -178,12 +178,12 @@ static long leds_unlocked_ioctl(struct file *filp, unsigned int cmd, unsigned lo
             return 0;
             
         case LEDS_GET:
-            msg.name = dev->name;
+            strcpy(msg.name, dev->name);
             msg.data = dev->status;
             ret = copy_to_user((struct leds_config __user *)arg, &msg, sizeof(struct leds_config));
             if (ret)
                 return -EINVAL;
-            printk(KERN_INFO "drv:[LEDS_GET] data = %d, name = %s\n", msg.data, msg.name);
+            printk(KERN_INFO "drv:[LEDS_GET] name = %s, data = %d\n", msg.name, msg.data);
             return 0;
 
         default:
@@ -313,7 +313,6 @@ module_exit(leds_drv_exit);
 
 MODULE_DESCRIPTION("leds driver");
 MODULE_LICENSE("GPL v2");
-MODULE_AUTHOR("lihong");
+MODULE_AUTHOR("lihongwqp@163.com");
 MODULE_VERSION("v1.0.0");
-
 
