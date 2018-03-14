@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <stdlib.h>
+
 
 #include "leds_cmd.h"
 
@@ -22,11 +24,16 @@ int main(int argc, char* argv[])
     fd2 = open("/dev/led5", O_RDWR);
     fd3 = open("/dev/led6", O_RDWR);
 
+    //printf("sizeof(struct leds_config) = %d\n", sizeof(struct leds_config));
+    //msg.name = malloc(16);
+    printf("sizeof(struct leds_config) = %d\n", sizeof(struct leds_config));
     memset(&msg, 0, sizeof(struct leds_config));
 
+#if 1
     // ioctl write
     msg.data = 1;
-    msg.name = "led4";
+    // msg.name = "led4";
+    strcpy(msg.name, "led4");
     ret = ioctl(fd1, LEDS_SET, &msg);
     printf("app:[LEDS_SET] ret = %d\n", ret);
     sleep(1);
@@ -37,24 +44,31 @@ int main(int argc, char* argv[])
     sleep(1);
     
     msg.data = 1;
-    msg.name = "led5";
+    // msg.name = "led5";
+    strcpy(msg.name, "led5");
     ret = ioctl(fd2, LEDS_SET, &msg);
     printf("app:[LEDS_SET] ret = %d\n", ret);
     sleep(1);
 
     msg.data = 1;
-    msg.name = "led6";
+    // msg.name = "led6";
+    strcpy(msg.name, "led6");
     ret = ioctl(fd3, LEDS_SET, &msg);
     printf("app:[LEDS_SET] ret = %d\n", ret);
     sleep(1);
+#endif
 
     // ioctl read
     ret = ioctl(fd1, LEDS_GET, &msg);
-    printf("app:[LEDS_GET] ret = %d, %s = %d\n", ret, msg.name, msg.data);
+    printf("app:[LEDS_GET] ret = %d, name = %s, data = %d\n", ret, msg.name, msg.data);
+    sleep(1);
+    
+    ret = ioctl(fd2, LEDS_GET, &msg);
+    printf("app:[LEDS_GET] ret = %d, name = %s, data = %d\n", ret, msg.name, msg.data);
     sleep(1);
 
     ret = ioctl(fd3, LEDS_GET, &msg);
-    printf("app:[LEDS_GET] ret = %d, %s = %d\n", ret, msg.name, msg.data);
+    printf("app:[LEDS_GET] ret = %d, name = %s, data = %d\n", ret, msg.name, msg.data);
     sleep(1);
 
     close(fd1);
