@@ -16,7 +16,8 @@
 
 struct leds_config {
     int data;
-    char *name;
+    char name[16];
+    // char *name;    // 为什么在LEDS_GET返回时候出错?
 };
 
 #endif /* end of LEDS_CMD_H_ */
