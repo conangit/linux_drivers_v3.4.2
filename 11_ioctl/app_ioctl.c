@@ -4,14 +4,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/ioctl.h>
 #include <stdlib.h>
-
+#include <sys/ioctl.h>
 
 #include "leds_cmd.h"
 
 /*
- * int ioctl(int fd, unsigned long request, ...);
+ * int ioctl(int fd, unsigned long cmd, ...);
  */
 
 int main(int argc, char* argv[])
@@ -24,9 +23,9 @@ int main(int argc, char* argv[])
     fd2 = open("/dev/led5", O_RDWR);
     fd3 = open("/dev/led6", O_RDWR);
 
-    //printf("sizeof(struct leds_config) = %d\n", sizeof(struct leds_config));
-    //msg.name = malloc(16);
-    printf("sizeof(struct leds_config) = %d\n", sizeof(struct leds_config));
+    // printf("sizeof(struct leds_config) = %d\n", sizeof(struct leds_config));
+    // msg.name = malloc(16);
+    // printf("sizeof(struct leds_config) = %d\n", sizeof(struct leds_config));
     memset(&msg, 0, sizeof(struct leds_config));
 
 #if 1
@@ -70,6 +69,10 @@ int main(int argc, char* argv[])
     ret = ioctl(fd3, LEDS_GET, &msg);
     printf("app:[LEDS_GET] ret = %d, name = %s, data = %d\n", ret, msg.name, msg.data);
     sleep(1);
+
+    // driver未实现命令
+    ret = ioctl(fd1, LEDS_ERR);
+    printf("app:[LEDS_ERR] ret = %d\n", ret);
 
     close(fd1);
     close(fd2);

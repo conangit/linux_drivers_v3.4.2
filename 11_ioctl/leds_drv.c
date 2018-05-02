@@ -54,17 +54,6 @@ static int leds_open(struct inode *inode, struct file *filp)
     dev = container_of(inode->i_cdev, struct led_dev, cdev);
     filp->private_data = dev;
 
-#if 0
-    // 基于同一物理地址GPFCONF的映射 导致多次调用open()中的request_mem_region()失败
-    dev->ledregs = (struct led_regs *)ioremap(GPFCONF, sizeof(struct led_regs));
-
-    if (! request_mem_region((phys_addr_t)dev->ledregs, sizeof(struct led_regs), dev->name))
-    {
-        printk(KERN_ERR "Error: request_mem_region error!\n");
-        goto fail;
-    }
-#endif
-
     //设置对应pin为GPIO
     config_data = ioread16(&ledsregs->gpfconf);
     config_data &= ~(3 << ((dev->pin) * 2));
@@ -226,7 +215,7 @@ static int leds_setup(struct led_dev *dev, int index)
     return ret;
 }
 
-int __init leds_drv_init(void)
+static int __init leds_drv_init(void)
 {
     dev_t devno;
     int ret;
@@ -256,17 +245,18 @@ int __init leds_drv_init(void)
     }
     memset(devs, 0, sizeof(struct led_dev) * leds_nr_devs);
 
-    //内核自带数据结构 使用API创建时 自动分配内存空间
-    leds_cls = class_create(THIS_MODULE, "leds_cls");
-
-    // IO映射
-    ledsregs = (struct leds_regs *)ioremap(GPFCONF, sizeof(struct leds_regs));
-
-    if (! request_mem_region((phys_addr_t)ledsregs, sizeof(struct leds_regs), "leds"))
+    // IO保护
+    if (! request_mem_region((phys_addr_t)GPFCONF, sizeof(struct leds_regs), "s3c2440-gpf"))
     {
         printk(KERN_ERR "Error: request_mem_region error!\n");
         goto fail2;
     }
+
+    // IO映射
+    ledsregs = (struct leds_regs *)ioremap(GPFCONF, sizeof(struct leds_regs));
+
+    //创建类
+    leds_cls = class_create(THIS_MODULE, "leds_cls");
 
     for (i = 0; i < leds_nr_devs; i++)
     {
@@ -274,16 +264,15 @@ int __init leds_drv_init(void)
     }
 
     return ret;
-
 fail2:
-    iounmap(ledsregs);
-
+    kfree(devs);
+    
 fail1:
     unregister_chrdev_region(devno, leds_nr_devs);
     return ret;
 }
 
-void __exit leds_drv_exit(void)
+static void __exit leds_drv_exit(void)
 {
     int i;
     dev_t devno;
@@ -295,9 +284,9 @@ void __exit leds_drv_exit(void)
         cdev_del(&devs[i].cdev);
     }
 
-    release_mem_region((phys_addr_t)ledsregs, sizeof(struct leds_regs));
-    iounmap(ledsregs);
     class_destroy(leds_cls);
+    iounmap(ledsregs);
+    release_mem_region((phys_addr_t)GPFCONF, sizeof(struct leds_regs));
 
     if (devs)
     {
@@ -316,4 +305,5 @@ MODULE_DESCRIPTION("leds driver");
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("lihongwqp@163.com");
 MODULE_VERSION("v1.0.0");
+
 
