@@ -1,0 +1,15 @@
+menu "JZ2440_TEST"
+
+config JZ2440_TEST
+    tristate "jz2440 modules test"
+
+config JZ2440_KEYS_DEV
+    tristate "jz2440 platform keys device"
+    depends on JZ2440_TEST=y
+
+config JZ2440_KEYS_DRV
+    tristate "jz2440 platform keys driver"
+    depends on JZ2440_TEST=y
+
+endmenu
+

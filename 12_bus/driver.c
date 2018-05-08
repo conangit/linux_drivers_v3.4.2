@@ -31,8 +31,9 @@ struct device_driver virtual_drv = {
     .owner = THIS_MODULE,
     .name = "lihong",
     // .of_match_table = virtural_of_match,
-    .bus = &virtual_bus,
-    .probe = drv_probe,
+    .bus    = &virtual_bus,
+    .probe  = drv_probe,
+    .remove = drv_remove,
 };
 
 static int mydrv_init(void)
