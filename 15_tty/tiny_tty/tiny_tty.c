@@ -44,7 +44,7 @@ static void tiny_timer_function(unsigned long data)
 
     tty_flip_buffer_push(tiny->port.tty);
 
-    mod_timer(&tiny->timer, jiffies + HZ * 2);
+    mod_timer(&tiny->timer, jiffies + HZ * 10);
 }
 
 static int tiny_open(struct tty_struct * tty, struct file * filp)
@@ -87,6 +87,7 @@ static int tiny_write(struct tty_struct * tty, const unsigned char *buf, int cou
     int retval = -EINVAL;
 
     // dump_stack();
+    // printk(KERN_INFO "%s()\n", __func__);
 
     if (!tiny)
         return -ENODEV;
@@ -120,7 +121,6 @@ static int tiny_write_room(struct tty_struct *tty)
 
     // dump_stack();
     printk(KERN_INFO "%s()\n", __func__);
-
 
     if (!tiny)
         return -ENODEV;
@@ -246,7 +246,7 @@ static int tiny_tiocmget(struct tty_struct *tty)
     int mcr = tiny->mcr;
     int result;
 
-    printk(KERN_INFO "%s()\n", __func__);
+    // printk(KERN_INFO "%s()\n", __func__);
 
     result = ((mcr & MCR_DTR)  ? TIOCM_DTR  : 0) |  /* DTR is set */
              ((mcr & MCR_RTS)  ? TIOCM_RTS  : 0) |  /* RTS is set */
@@ -264,7 +264,7 @@ static int tiny_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int 
     struct tiny_serial *tiny = tty->driver_data;
     int mcr = tiny->mcr;
 
-    printk(KERN_INFO "%s()\n", __func__);
+    // printk(KERN_INFO "%s()\n", __func__);
 
     if (set & TIOCM_RTS)
         mcr |= MCR_RTS;
@@ -373,7 +373,7 @@ static const struct file_operations tiny_proc_fops = {
     .release = single_release,
 };
 
-static struct tty_operations serial_ops = {
+static struct tty_operations tty_ops = {
     .open = tiny_open,
     .close = tiny_close,
     .write = tiny_write,
@@ -408,7 +408,7 @@ static int __init tiny_init(void)
     tiny_tty_driver->init_termios.c_cflag = B115200 | CS8 | CREAD | HUPCL | CLOCAL;
     tiny_tty_driver->init_termios.c_ispeed = tiny_tty_driver->init_termios.c_ospeed = 115200;
 
-    tty_set_operations(tiny_tty_driver, &serial_ops);
+    tty_set_operations(tiny_tty_driver, &tty_ops);
 
     retval = tty_register_driver(tiny_tty_driver);
     if (retval)
@@ -439,7 +439,7 @@ static int __init tiny_init(void)
         tty_register_device(tiny_tty_driver, i, NULL);
     }
 
-    printk("LINUX_VERSION_CODE = %u, KERNEL_VERSION(3, 4, 2) = %u\n", LINUX_VERSION_CODE, KERNEL_VERSION(3, 4, 2));
+    // printk("LINUX_VERSION_CODE = %u, KERNEL_VERSION(3, 4, 2) = %u\n", LINUX_VERSION_CODE, KERNEL_VERSION(3, 4, 2));
 
     return retval;
 
@@ -454,7 +454,7 @@ static void __exit tiny_exit(void)
 {
     int i;
 
-    for (i = 0; i < TINY_TTY_NR; i++)
+    for (i = TINY_TTY_NR - 1; i >= 0 ; i--)
         tty_unregister_device(tiny_tty_driver, i);
 
     if (tinys)

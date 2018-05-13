@@ -88,13 +88,13 @@ void baud_rate(struct termios *opt)
 
 void decode_termios(struct termios *opt)
 {
-    printf("#######################\n");
+    printf("@@@@@@@@@@@@@@@@@@@@@@@\n");
     data_bit(opt);
     parity(opt);
     stop_bit(opt);
     baud_rate(opt);
-    hw_flow(opt);
-    printf("#######################\n");
+    // hw_flow(opt);
+    printf("@@@@@@@@@@@@@@@@@@@@@@@\n");
 }
 
 
