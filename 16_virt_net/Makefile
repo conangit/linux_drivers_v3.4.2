@@ -8,6 +8,6 @@ clean:
 	make -C $(KDIR) M=$(PWD) modules clean ARCH=arm CROSS_COMPILE=arm-linux-
 	rm -rf modules.order *.symvers
 
+obj-m += virtual_lo.o
 # obj-m += virtual_net.o
-obj-m += virtual_demo.o
 
