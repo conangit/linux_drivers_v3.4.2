@@ -1,0 +1,58 @@
+实例化一个I2C设备方法
+参照文档 Documentation/i2c/instantiating-devices
+
+[[对于已知设备所在的i2c bus busnum(即知道i2c_client所挂载的i2c_adapter)情况]]
+
+Method 1a>i2c_board_info静态添加
+定义一个struct i2c_board_info结构 使用i2c_register_board_info(busnum, , )注册
+    __i2c_board_list
+        i2c_scan_static_board_info() -- i2c_new_device()
+            i2c_register_adapter()
+                i2c_add_adapter()
+                    i2c_add_numbered_adapter()
+
+必须在i2c_add_adapter()之前 注册i2c_register_board_info() 故所以不适合动态加载
+
+Method 1b>通过设备树实例化一个设备
+
+// 新内核接口
+Method 1c>: Declare the I2C devices via ACPI
+
+Method 2>
+i2c_get_adapter(busnum)
+struct i2c_client *
+i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+或者
+struct i2c_client *
+i2c_new_probed_device(struct i2c_adapter *adap, struct i2c_board_info *info, unsigned short const *addr_list, int (*probe)(struct i2c_adapter *, unsigned short addr))
+
+Method 3>从用户空间创建设备
+ls /sys/bus/i2c/devices/i2c-0
+看到new_device和delete_device
+
+创建
+echo "probed_name" "addr" > /sys/bus/i2c/devices/i2c-0/new_device
+//匹配通用eeprom驱动
+echo 24c256 0x50 > /sys/bus/i2c/devices/i2c-0/new_device
+//匹配自行编写的驱动
+echo my_at24c256 0x50 > /sys/bus/i2c/devices/i2c-0/new_device
+
+删除
+echo 0x50 > /sys/bus/i2c/devices/i2c-0/delete_device
+
+[[对于未知i2c_client所挂载的i2c_adapter情况 (甚至可以不知道设备的具体地址)]]
+
+Method 4>
+与linux-2.6.22版本相同 在一个文件里面绑定驱动与设备 使用driver的detect方法：
+去"class"表示的这一类I2C adapter, 用detect来确定是否找到address_list的设备
+如果能找到就调用i2c_new_device来注册i2c_client
+此时调用detect
+a>可以用来分辨是具体哪款设备
+b>设置设备名字 此i2c_driver的id_table比较 若匹配则调用i2c_driver的probe
+
+总结：
+不推荐方法1和4
+at24c256_drv.c at24c256_dev.c使用方法2
+driver_device.c使用方法4
+
+

@@ -1,0 +1,8 @@
+mkdir ./_install
+
+make clean
+
+make CC=arm-linux-gcc LDFLAGS=-static
+
+make install prefix=./_install
+

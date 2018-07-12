@@ -1,0 +1,58 @@
+Linux启动信息
+s3c-i2c s3c2440-i2c: slave address 0x10
+s3c-i2c s3c2440-i2c: bus frequency set to 97 KHz
+s3c-i2c s3c2440-i2c: i2c-0: S3C I2C adapter
+
+s3c-i2c s3c2440-i2c: slave address 0x10
+s3c-i2c s3c2440-i2c: bus frequency set to 390 KHz
+s3c-i2c s3c2440-i2c: i2c-0: S3C I2C adapter
+
+内核源码信息
+#define S3C2410_PA_IIC (0x54000000)
+#define SZ_4K          0x00001000
+#define IRQ_IIC        S3C2410_IRQ(27)  //16+27=43   //43:  0  s3c  s3c2440-i2c
+
+static struct resource s3c_i2c0_resource[] = {
+    [0] = DEFINE_RES_MEM(S3C_PA_IIC, SZ_4K),
+    [1] = DEFINE_RES_IRQ(IRQ_IIC),
+};
+
+struct platform_device s3c_device_i2c0 = {
+    .name           = "s3c2410-i2c",
+    .id             = -1,
+    .num_resources  = ARRAY_SIZE(s3c_i2c0_resource),
+    .resource       = s3c_i2c0_resource,
+};
+
+struct s3c2410_platform_i2c default_i2c_data __initdata = {
+    .flags      = 0,
+    .slave_addr = 0x10,
+    .frequency  = 100*1000,
+    .sda_delay  = 100,
+};
+
+void __init s3c_i2c0_set_platdata(struct s3c2410_platform_i2c *pd)
+{
+    struct s3c2410_platform_i2c *npd;
+
+    if (!pd) {
+        pd = &default_i2c_data;
+        pd->bus_num = 0;
+    }
+
+    npd = s3c_set_platdata(pd, sizeof(struct s3c2410_platform_i2c),
+                   &s3c_device_i2c0);
+
+    if (!npd->cfg_gpio)
+        npd->cfg_gpio = s3c_i2c0_cfg_gpio;
+}
+
+void s3c_i2c0_cfg_gpio(struct platform_device *dev)
+{
+    s3c_gpio_cfgpin(S3C2410_GPE(15), S3C2410_GPE15_IICSDA);
+    s3c_gpio_cfgpin(S3C2410_GPE(14), S3C2410_GPE14_IICSCL);
+}
+
+启动后系统信息
+
+

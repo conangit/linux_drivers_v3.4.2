@@ -1,0 +1,50 @@
+[自己编写的总线驱动]
+
+[root@my2440 /drivers]# ./test_at24c256 
+test cnt:[0]
+Open device i2c-0...
+i2c i2c-0: ioctl, cmd=0x707, arg=0xbe9b8cd0
+i2c i2c-0: master_xfer[0] W, addr=0x50, len=3
+s3c_i2c_start: START
+s3c_i2c_stop: STOP
+
+i2c i2c-0: ioctl, cmd=0x707, arg=0xbe9b8cd0
+i2c i2c-0: master_xfer[0] W, addr=0x50, len=2
+i2c i2c-0: master_xfer[1] R, addr=0x50, len=1
+s3c_i2c_start: START
+s3c_i2c_start: START
+s3c_i2c_stop: STOP
+
+write data: 0xa5
+read data: 0xa5
+test error: 0
+
+[官方总线驱动]
+
+[root@my2440 /drivers]# ./test_at24c256 
+test cnt:[0]
+Open device i2c-0...
+i2c i2c-0: ioctl, cmd=0x707, arg=0xbef75cd0
+i2c i2c-0: master_xfer[0] W, addr=0x50, len=3
+s3c-i2c s3c2440-i2c: START: 000000d0 to IICSTAT, a0 to DS
+s3c-i2c s3c2440-i2c: iiccon, 000000e0
+s3c-i2c s3c2440-i2c: STOP
+s3c-i2c s3c2440-i2c: master_complete 0
+s3c-i2c s3c2440-i2c: waiting for bus idle
+
+i2c i2c-0: ioctl, cmd=0x707, arg=0xbef75cd0
+i2c i2c-0: master_xfer[0] W, addr=0x50, len=2
+i2c i2c-0: master_xfer[1] R, addr=0x50, len=1
+s3c-i2c s3c2440-i2c: START: 000000d0 to IICSTAT, a0 to DS
+s3c-i2c s3c2440-i2c: iiccon, 000000e0
+s3c-i2c s3c2440-i2c: WRITE: Next Message
+s3c-i2c s3c2440-i2c: START: 00000090 to IICSTAT, a1 to DS
+s3c-i2c s3c2440-i2c: iiccon, 000000f0
+s3c-i2c s3c2440-i2c: READ: Send Stop
+s3c-i2c s3c2440-i2c: STOP
+s3c-i2c s3c2440-i2c: master_complete 0
+s3c-i2c s3c2440-i2c: waiting for bus idle
+
+write data: 0xa5
+read data: 0xa5
+test error: 0

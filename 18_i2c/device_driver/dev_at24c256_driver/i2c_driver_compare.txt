@@ -1,0 +1,62 @@
+Linux-v2.6.22.6
+
+struct i2c_driver {
+    int id;
+    unsigned int class;
+    int (*attach_adapter)(struct i2c_adapter *);
+    int (*detach_adapter)(struct i2c_adapter *);
+    int (*detach_client)(struct i2c_client *);
+    int (*probe)(struct i2c_client *);
+    int (*remove)(struct i2c_client *);
+    void (*shutdown)(struct i2c_client *);
+    int (*suspend)(struct i2c_client *, pm_message_t mesg);
+    int (*resume)(struct i2c_client *);
+    int (*command)(struct i2c_client *client,unsigned int cmd, void *arg);
+    struct device_driver driver;
+    struct list_head list;
+}
+
+static struct i2c_driver eeprom_driver = {
+    .driver = {
+        .name   = "eeprom",
+    },
+    .id     = I2C_DRIVERID_EEPROM,
+    .attach_adapter = eeprom_attach_adapter,
+    .detach_client  = eeprom_detach_client,
+};
+
+
+Linux-v3.4.2
+
+struct i2c_driver {
+    unsigned int class;
+    int (*attach_adapter)(struct i2c_adapter *) __deprecated;
+    int (*detach_adapter)(struct i2c_adapter *) __deprecated;
+    int (*probe)(struct i2c_client *, const struct i2c_device_id *);
+    int (*remove)(struct i2c_client *);
+    void (*shutdown)(struct i2c_client *);
+    int (*suspend)(struct i2c_client *, pm_message_t mesg);
+    int (*resume)(struct i2c_client *);
+    void (*alert)(struct i2c_client *, unsigned int data);
+    int (*command)(struct i2c_client *client, unsigned int cmd, void *arg);
+
+    struct device_driver driver;
+    const struct i2c_device_id *id_table;
+    int (*detect)(struct i2c_client *, struct i2c_board_info *);
+    const unsigned short *address_list;
+    struct list_head clients;
+}
+
+static struct i2c_driver eeprom_driver = {
+    .driver = {
+        .name   = "eeprom",
+    },
+    .probe      = eeprom_probe,
+    .remove     = eeprom_remove,
+    .id_table   = eeprom_id,
+
+    .class      = I2C_CLASS_DDC | I2C_CLASS_SPD,
+    .detect     = eeprom_detect,
+    .address_list   = normal_i2c,
+};
+

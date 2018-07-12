@@ -1,0 +1,53 @@
+使用i2c_transfer
+
+# ./app_at24c256 0xdd
+Open device at24c256-0
+i2c-adapter i2c-0: master_xfer[0] W, addr=0x50, len=3
+s3c2440-i2c s3c2440-i2c: START: 000000d0 to IICSTAT, a0 to DS
+s3c2440-i2c s3c2440-i2c: iiccon, 000000a7
+s3c2440-i2c s3c2440-i2c: STOP
+s3c2440-i2c s3c2440-i2c: master_complete 0
+write data: 0xdd
+
+i2c-adapter i2c-0: master_xfer[0] W, addr=0x50, len=2
+i2c-adapter i2c-0: master_xfer[1] R, addr=0x50, len=1
+s3c2440-i2c s3c2440-i2c: START: 000000d0 to IICSTAT, a0 to DS
+s3c2440-i2c s3c2440-i2c: iiccon, 000000a7
+s3c2440-i2c s3c2440-i2c: WRITE: Next Message
+s3c2440-i2c s3c2440-i2c: START: 00000090 to IICSTAT, a1 to DS
+s3c2440-i2c s3c2440-i2c: iiccon, 000000b7
+s3c2440-i2c s3c2440-i2c: READ: Send Stop
+s3c2440-i2c s3c2440-i2c: STOP
+s3c2440-i2c s3c2440-i2c: master_complete 0
+read data:  0xdd
+
+
+使用i2c_smbus
+[从时序图来看 并不符合规范]
+
+[root@my2440 /drivers]# ./app_at24c256 0x2d
+Open device at24c256-0
+i2c i2c-0: master_xfer[0] W, addr=0x50, len=3
+s3c-i2c s3c2440-i2c: START: 000000d0 to IICSTAT, a0 to DS
+s3c-i2c s3c2440-i2c: iiccon, 000000e0
+s3c-i2c s3c2440-i2c: STOP
+s3c-i2c s3c2440-i2c: master_complete 0
+s3c-i2c s3c2440-i2c: waiting for bus idle
+
+i2c i2c-0: master_xfer[0] W, addr=0x50, len=2
+s3c-i2c s3c2440-i2c: START: 000000d0 to IICSTAT, a0 to DS
+s3c-i2c s3c2440-i2c: iiccon, 000000e0
+s3c-i2c s3c2440-i2c: STOP
+s3c-i2c s3c2440-i2c: master_complete 0
+s3c-i2c s3c2440-i2c: waiting for bus idle
+i2c i2c-0: master_xfer[0] R, addr=0x50, len=1
+s3c-i2c s3c2440-i2c: START: 00000090 to IICSTAT, a1 to DS
+s3c-i2c s3c2440-i2c: iiccon, 000000e0
+s3c-i2c s3c2440-i2c: READ: Send Stop
+s3c-i2c s3c2440-i2c: STOP
+s3c-i2c s3c2440-i2c: master_complete 0
+s3c-i2c s3c2440-i2c: waiting for bus idle
+
+write data: 0x2d
+read data:  0x2d
+
